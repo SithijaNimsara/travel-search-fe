@@ -1,38 +1,489 @@
-.App {
+@import url('https://fonts.googleapis.com/css?family=Audiowide|Sofia|Trirong&effect=neon|outline|emboss|shadow-multiple'); 
+#header {
+  color: white;
+  font-size: 500%;
+  font-weight: 100;
+}
+
+h1 {
+  font-family: "Sofia", sans-serif;
+}
+
+h2, h4, h5, h6 {
+  font-family: "Trirong", serif;
+}
+
+#search-field {
+  width: 30%;
+  align-items: center;
+  margin-left: 40%;
+  margin-top: 3%;
+}
+/* #search {
+  margin-left: 0%;
+} */
+#nav-1{
+  float: left;
+}
+
+#nav-2{
+  float: right;
+  margin-top: -0.5cm;
+}
+
+#nav-3{
+  float: right;
+  margin-top: 1.5cm;
+}
+
+#logout-btn {
+  margin-right: 0.2cm;
+  font-size: larger;
+  color: rgb(41, 91, 255);
+  background-color: white;
+  border-radius: 10px
+}
+#person-btn {
+  border-radius: 100%;
+  color: rgb(100, 100, 100);
+  border-color:  rgb(100, 100, 100);
+  background-color: white;
+  font-size: larger;
+}
+#sign-in {
+  color: rgb(255, 255, 255);
+  font-size: 400%;
+}
+
+#container-2 {
+  width: 90%;
+  /* display: block; */
+  margin-left: auto;
+  margin-right: auto;
+  height: 100vh;
+  /* padding-top: 1cm; */
+  background-color: rgba(0, 0, 0, 0.45);
+  
+}
+
+#profile-btn {
+  width: 85%;
+  background-color: rgb(255, 255, 255);
+  border-color: white;
+  color: rgb(0, 0, 0);
+}
+
+#container-1 {
+  background-image: url(asset/image_3.jpg);
+  height: 100%; 
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  
+}
+
+#signin-container-1 {
+  background-image: url(asset/image_3.jpg);
+  height: 100%; 
+  /* background-position: center; */
+  background-repeat: no-repeat;
+  background-size: cover;
+  
+}
+
+#signin-container-2 {
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+
+#nav, #body {
+  /* background-color: rgba(0, 0, 0, 0.830); */
+  /* display: block; */
+  /* margin: 0cm 1cm 1cm 1cm; */
+ 
+}
+
+#signup-text {
+  margin-right: 10%;
+  width: 50%;
+}
+
+
+#nav {
+  background-color: rgba(0, 0, 0, 0.85);
+  height: 20%;
+  margin-bottom: 0.5cm;
+  padding: 1%;
+}
+
+#body {
+  height: 75%;
+  /* padding: 1cm; */
+}
+
+#body::after {
+  clear: both;
+}
+
+/* .split {
+  position: fixed;
+  z-index: 1;
+  top: 150; 
+} */
+
+#left, #right, #middle {
+  /* margin: 0.5cm; */
+  height: calc(100%);
+  overflow-y:auto;
+  overflow-x:hidden;
+  float: left;
+  
+}
+#left {
+  /* width: 30%;
+  left: 1.2%; */
+  width: 25%;
+}
+
+#middle {
+  /* width: 30%;
+  left: 1.2%; */ 
+  width: 48%;
+  /* margin: 0cm 1cm 0cm 1cm; */
+  
+}
+
+
+#right {
+  /* height: calc(100% - 60px);
+  right: 1.2%;
+  width: 66%;
+  overflow-y:auto;
+  overflow-x:hidden; */
+  width: 25%;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 7.5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey; 
+  border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(0, 42, 82); 
+}
+
+
+#content, #content-middle {
+  background-color: white;
+  border-radius: 10px;
+  padding: 0.8cm;
+  margin: 0cm 0.25cm 0.25cm 0.5cm;
+}
+
+#content {  
+  overflow-y:auto;
+}
+
+#content-middle {
+  min-height: 100%;
+}
+
+/* 
+#person-img{
+  border-radius: 100%;
+} */
+
+#person-img{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#username {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+#post-header {
+  width: 2%;
+  display: inline;
+  font-size: 0.9cm;
+  position: relative;
+  top: -4px;
+  margin-left: 0.55cm;
+  /* padding-bottom: 18cm; */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+#post-time {
+  position: relative;
+  top: -16px;
+  margin-left: 2.12cm;
+  font-size: 0.35cm;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.comment-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40%;
+  height: 90%;
+
+  border: 1px solid #ccc;
+  background: #fff;
+  overflow: auto;
+  border-radius: 4px;
+  outline: none;
+  padding: 20px;
+}
+
+#gallery-modal {
+  height: 80%;
+  width: 40%;
+}
+
+.gallery-btn-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gallery-btn-container p {
+  margin: 10%;
+}
+
+.gallery-btn {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+  border-radius: 10%;
+}
+.comment-filed {
+  position: fixed;
+  bottom: 4%;
+  align-items: center;
+  display: flex;
+  width: 94%;
+}
+
+.comment-input {
+  width: 280%;
+  height: 180%;
+  display: flex;
+  margin-right: 2%;
+  border-radius: 1%;
+}
+
+
+#comment-send {
+  border-radius: 100%;
+  font-size: 20px;
+  flex: 1;
+}
+
+.comment-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.363);
+}
+
+.comment-list {
+  height: calc(80%);
+  overflow-y:auto;
+  overflow-x:hidden;
+  position: relative;
+  border-style: solid;
+  border-width: thin;
+  border-color: black;
+  padding: 1% 5% 5% 5%;
+}
+
+#comment-header {
+  width: 2%;
+  display: inline;
+  font-size: 0.7cm;
+  position: relative;
+  top: -10px;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-weight: lighter;
+  margin-left: 0.55cm;
+  /* padding-bottom: 18cm; */
+}
+#post-comment {
+  font-size: 0.45cm;
+  position: relative;
+  top: -16px;
+  margin-left: 2.1cm;
+  width: 80%;
+}
+#comment-time {
+  font-size: 0.35cm;
+  margin-bottom: -2.5%;
+}
+
+.gallery-image {
+  width: 80%;
+  height: 70%;
+  
+}
+
+.gallery-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* .image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.hotel-image {
+  display: block;
+  max-width: 100%;
+}
+
+.hotel-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+} */
+
+
+
+#img-upload {
+  float: left;
+}
+#img-upload-2 {
+  /* float: right; */
+  /* margin-right: 25%; */
+  
+  border-radius: 5%;
+  background-color: rgb(121, 121, 121);
+}
+#like-btn {
+  /* border-radius: 100%; */
+  background-color: rgb(16, 0, 241);
+  margin-top: 4%;
+}
+#dislike-btn {
+  /* border-radius: 100%; */
+  background-color: rgb(241, 0, 0);
+  border-color: rgb(241, 0, 0);
+  margin-top: 4%;
+}
+#like-count {
+  float: right;
+  margin-left: 5px;
+  margin-top: 1px;
+}
+#comment-btn {
+  background-color: black;
+  width: 13%;
+  float: right;
+  margin-top: 4%;
+}
+
+.create-post h5 {
+  display: inline-block;
+  /*  */
+}
+
+.create-post textarea {
+  display: inline-block;
+  margin: 5% 3% 0% 0% 
+}
+
+.create-post Button {
+  display: inline-block;
+}
+
+#hotel-comment-btn {
+  background-color: black;
+  width: 13%;
+  float: right;
+  /* display: inline-block; */
+  margin-top: 4%;
+}
+
+#delete-btn {
+  float: right;
+  background-color: rgb(212, 26, 26);
   color: white;
+  width: 8%;
+  height: 12%;
+  border-radius: 15%;
+  border-color: white;
 }
 
-.App-link {
-  color: #61dafb;
+
+#hotel-like-count {
+  /* border-radius: 100%; */
+  color: rgba(0, 0, 255, 0.568);
+  display: inline-block;
+  margin: 0; 
+  margin-top: 4%;
+  font-size: 15px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.indented-paragraph::before {
+  content: '';
+  display: inline-block;
+  width: 40px; /* Adjust the value as needed */
+}
+
+#line-1 {
+  display: inline-block;
+  width: 100%;
+  /* position: relative;
+  right: 0.8cm; */
+  margin: 10% 0% 10% 0%;
+  border-top: 0.2px solid rgb(0, 0, 0);
+}
+
+#rate-header {
+  margin-bottom: 10%;
+}
+
+#rate-hotel {
+  width: 100%;
+  display: inline;
+  position: relative;
+  top: 0%;
+  margin-left: 0.55cm;
+  padding-bottom: 18cm;
+}
+
+#no-content {
+  color: red;
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+  padding: 3px;
+  background-color: rgb(63, 63, 63);
+  color: #ffffff;
 }

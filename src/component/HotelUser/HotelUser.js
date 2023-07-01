@@ -1,48 +1,23 @@
 import React, { Component, useEffect, useState } from 'react';
-import { FaComment, FaUser, FaSignOutAlt, FaFileUpload, FaTelegramPlane, FaTrash, FaTimes } from 'react-icons/fa';
+import { FaComment, FaUser, FaSignOutAlt, FaFileUpload, FaTelegramPlane, FaTrash, FaChevronLeft, FaChevronRight, FaEye } from 'react-icons/fa';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Gallery } from "react-grid-gallery";
 import Footer from '../Footer/Footer';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import moment from 'moment';
 import Modal from "react-modal";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 Modal.setAppElement("#root");
-const images = [
-    {
-       src: require('../../asset/hotel.jpg'),
-       width: "50",
-       height: "50",
-      
-       
-    },
-    {
-       src: require('../../asset/hotel.jpg'),
-       width: "50",
-       height: "50",
-       tags: [
-          { value: "Ocean", title: "Ocean" },
-          { value: "People", title: "People" },
-       ],
-       alt: "Boats (Jeshu John - designerspics.com)",
-    },
-  
-    {
-    src: require('../../asset/hotel.jpg'),
-       width: "50",
-       height: "50",
-    },
-    
- ];
 
 export default function HotelUser() {
 
     const location = useLocation();
+    // const port = window.location.origin;
     const [hotelInfo, setHotelInfo] = useState([]);
     const [blobUrl, setBlobUrl] = useState("");
     const [caption, setCaption] = useState('');
@@ -58,6 +33,13 @@ export default function HotelUser() {
     const [horizontal, setHorizontal] = useState('right');
     const data = location.state?.data || '';
     const navigate = useNavigate();
+    const [blobGalleryUrl, setBlobGalleryUrl] = useState("");
+    const [totalItem, setTotalItem] = useState(0);
+    const [isViewImageOpen, setIsViewImageOpen] = useState(false);
+    const [currentImage, setCurrentImage] = useState(0);
+    const [boolNext, setBoolNext] = useState(true);
+    const [gallery, setGallery] = useState([]);
+    // const galleryUrl = `${port}/get-gallery-image`;
 
     useEffect(() => {
         const authToken = localStorage.getItem("token")
@@ -120,6 +102,32 @@ export default function HotelUser() {
 
     function handleUploadPostImage(image) {
         setPostImage(image.target.files[0])
+    }
+
+    const handleUploadImage = (image) => {
+        console.log(image.target.files[0]);
+        const formData = new FormData();
+        const blob = new Blob([image.target.files[0]], {type: image.target.files[0].type});
+        formData.append("image", blob, {
+            type: "application-octet-stream"
+        });
+        axios.post(`add-gallery-image/${localStorage.getItem("id")}`, formData, {
+            headers: {
+            "Content-Type": "multipart/form-data",
+            }
+        })
+        .then(response => {
+            console.log(response);
+            if(response.status === 201) {
+                setOpen(true);
+                setAlertTitle('success')
+                setAlertMsg('Successfully upload a new image to gallery')
+            }else {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('Failed to upload a new image')  
+            }
+        })
     }
 
     function sendPost() {
@@ -209,6 +217,92 @@ export default function HotelUser() {
         localStorage.removeItem("id")
         navigate('/')
     };
+
+    const viewImageModal=() => {
+        let id = localStorage.getItem('id');
+        axios.get('get-gallery-image', {
+            params: { hotelId: id,
+                      index: 0  
+                    },
+        }).then(res => {
+            return res.data
+        })
+        .then(data =>{
+            setBlobGalleryUrl(convertImage(data['image']))
+            setGallery(data)
+            setTotalItem(data['totalItem'])
+            setIsViewImageOpen(!isViewImageOpen)
+            console.log(currentImage, "-", totalItem);
+            if(currentImage===totalItem-1) {
+                console.log("setBoolNext");
+                setBoolNext(false)
+            }else {
+                setBoolNext(true)
+            }
+        }).catch(error => {
+            if (error.response.status ===404) {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('No Images Upoladed')    
+                setIsViewImageOpen(isViewImageOpen)
+            }else {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('Something went wrong.')    
+                setIsViewImageOpen(isViewImageOpen)
+            }
+        })
+    }
+
+    const nextImage = () => {
+        if(boolNext) {
+            setCurrentImage(currentImage => currentImage + 1);   
+        } 
+    };
+
+    const prevImage = () => {
+        if(currentImage!==0) {
+            setCurrentImage(currentImage => currentImage - 1);
+        }      
+    };
+
+    useEffect(() => {
+        try {
+            let id = localStorage.getItem('id');
+            const response = axios.get('get-gallery-image', {
+                params: { hotelId: id,
+                            index: currentImage  
+                        },
+            })
+            .then(data => {
+                setGallery(data.data)
+                setTotalItem(data.data['totalItem'])
+                setBlobGalleryUrl(convertImage(data.data['image']))
+                console.log(currentImage, "-", totalItem);
+                if(currentImage===totalItem-1) {
+                    console.log("setBoolNext");
+                    setBoolNext(false)
+                }else {
+                    setBoolNext(true)
+                }
+
+            })       
+        } catch (error) {
+            if (error.response.status ===404) {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('No Images Upoladed')    
+                setIsViewImageOpen(isViewImageOpen)
+            }else {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('Something went wrong.')    
+                setIsViewImageOpen(isViewImageOpen)
+            }   
+        }
+    }, [currentImage])
+
+
         return (
             <div id="container-1">
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia&effect=outline|emboss|fire"></link>
@@ -244,7 +338,33 @@ export default function HotelUser() {
                                 <h4 className='mb-3'>{hotelInfo.address}</h4>
                                 <h4 className='mb-3'>{hotelInfo.state}</h4>
                                 <h4 className='mb-3'>{hotelInfo.country}</h4>
-                                <Gallery images={images} /> 
+                                {/* <Gallery images={images} />  */}
+                                <div id="image-container">
+                                    <h5><b>Gallery :</b></h5>
+                                    <Button id='image-btn' className='mx-1' onClick={() => viewImageModal()}>
+                                        <FaEye/>
+                                    </Button>
+                                    <input type="file" multiple accept="image/*" style={{ display: 'none' }} id="upload-input" onChange={(e) => handleUploadImage(e)}/>
+                                    <label htmlFor="upload-input">
+                                        <Button as="span">
+                                            <FaFileUpload/>
+                                        </Button>
+                                    </label>
+                                </div>
+                                <Modal isOpen={isViewImageOpen} onRequestClose={viewImageModal} contentLabel="Comments" id="gallery-modal" className="comment-modal" overlayClassName="comment-overlay">
+                                    <h2 className='mb-4 font-effect-shadow-multiple' id='username'>Gallery</h2>
+                                    <div className="gallery-container">
+                                        <img src={blobGalleryUrl} alt="hotel" className='gallery-image'/>
+                                    </div>
+                                    
+                                    <div className="gallery-btn-container">
+                                        <button className='gallery-btn' onClick={prevImage} ><FaChevronLeft /></button>
+                                        <p>{gallery["currentPage"]+1} / {gallery["totalItem"]}</p>
+                                        <button className='gallery-btn' onClick={nextImage} ><FaChevronRight /></button>
+                                    </div>
+
+
+                                </Modal>
                             </div>
                         </div>
                         <div id="middle">
@@ -288,7 +408,13 @@ export default function HotelUser() {
                                         </div>                                       
                                     </Modal>
                                 </div>
-                            ))}                            
+                            ))} 
+                            <div id="content-middle">
+                                <div hidden={postInfo.length!==0}>
+                                    <h3 id="no-content">Created Posts will be Visible Here</h3>
+                                    <p id="no-content">Please check the right side to create a new post.</p>
+                                </div>
+                            </div>                            
                         </div>
                         
                         <div id="right">
@@ -315,15 +441,15 @@ export default function HotelUser() {
                                     
                                 </div>
                                 <div className="create-post">
-                                    <textarea rows="5" id="caption" value={caption} onChange={(e) => handlePostCaptionChange(e)}></textarea>
+                                    <textarea rows="5" id="caption" placeholder='Caption...' value={caption} onChange={(e) => handlePostCaptionChange(e)}></textarea>
                                     <Button onClick={sendPost}>Post<FaTelegramPlane/></Button>
                                 </div>
                                 
-                                <span id='line-1' className='mb-3'></span>
+                                {/* <span id='line-1' className='mb-3'></span>
                                 <div className="create-post">
                                     <h4><b>Add Image:</b></h4>
                                     <Button>Add Image<FaFileUpload/></Button>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>

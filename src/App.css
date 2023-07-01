@@ -213,10 +213,6 @@ h2, h4, h5, h6 {
   justify-content: center;
 }
 
-#username {
-  text-align: center;
-}
-
 #post-header {
   width: 2%;
   display: inline;
@@ -486,4 +482,17 @@ footer {
   padding: 3px;
   background-color: rgb(63, 63, 63);
   color: #ffffff;
+}
+
+#image-btn {
+  width: 20%;
+}
+
+#upload-input {
+  width: 20%;
+}
+
+#image-container {
+  display: flex;
+  align-items: center;
 }

@@ -4,7 +4,9 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Footer from '../Footer/Footer';
 import axios from 'axios';
-
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import { useNavigate, useLocation } from "react-router-dom"
 export default function SignUp() {
 
     const [userName, setUserName] = useState('');
@@ -16,6 +18,14 @@ export default function SignUp() {
     const [image, setImage] = useState([]);
     const [checkBusiness, setCheckBusiness] = useState(false);
     const [businessType, setBusinessType] = useState(1);
+    const location = useLocation();
+
+    const [alertTitle, setAlertTitle] = useState('success');
+    const [alertMsg, setAlertMsg] = useState('');
+    const [open, setOpen] = useState(false);
+    const [vertical, setVertical] = useState('top');
+    const [horizontal, setHorizontal] = useState('right');
+    const navigate = useNavigate();
 
     const handleInputChange = (e) => {
         const {id , value} = e.target;
@@ -57,7 +67,10 @@ export default function SignUp() {
             country: country
         }
         if(checkBusiness) {
-            data["type"] = businessType; 
+            // data["type"] = businessType; 
+            data["role"] = "BUSINESS";
+        }else {
+            data["role"] = "USER";
         }
         const json = JSON.stringify(data);
         const newData = new Blob([json], {
@@ -75,13 +88,44 @@ export default function SignUp() {
             }
         })
         .then(response => {
-            console.log("response ", JSON.stringify(response));
+            if(response.status === 201) {
+                setOpen(true);
+                setAlertTitle('success');
+                setAlertMsg('Successfully Create a Account. \nPlease Login to the System.');
+                const timer = setTimeout(() => {  
+                    navigate('/')
+                }, 1000);
+                return () => clearTimeout(timer);
+            }else {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('Something went wrong')  
+            }
         })
+        .catch((error) => {
+            console.log(error.response);
+            if (error.response.status === 409) {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg(error.response.data)  
+            }else {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('Something went wrong')  
+            }
+        });
     }
 
     function handleUploadImage(image) {
         setImage(image.target.files[0])
     }
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+        setOpen(false);
+    };
 
     return (
             <div id="signin-container-1">
@@ -123,7 +167,7 @@ export default function SignUp() {
                         </Form.Group>
                     </Stack>
 
-                <Stack className="col-md-3 mx-auto">
+                    <Stack className="col-md-3 mx-auto">
                         <Form.Group className="mb-3">
                             <Form.Check type="checkbox" checked={checkBusiness} id="checkBusiness" style={{color:'white', fontSize:'24px'}} label="Business" onChange={(e) => handleInputChange(e)}/>
                         </Form.Group>
@@ -138,7 +182,13 @@ export default function SignUp() {
                     <Stack gap={0.1} className="col-md-3 mt-3 mx-auto">
                         <Button variant="primary" onClick={registerClick} style={{width:'85%'}}>Register</Button>
                     </Stack>
-                    
+                    <div>
+                        <Snackbar open={open} autoHideDuration={4000} onClose={handleClose} anchorOrigin={{ vertical, horizontal }} key={vertical + horizontal}>  
+                            <Alert onClose={handleClose} severity={alertTitle} sx={{ width: '100%' }}>
+                                {alertMsg}
+                            </Alert>
+                        </Snackbar>
+                    </div>
                     <Footer></Footer>
                     </div>
             </div>

@@ -5,11 +5,11 @@ import Form from 'react-bootstrap/Form';
 import Footer from '../Footer/Footer';
 import axios from 'axios';
 import moment from 'moment';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import Modal from "react-modal";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { useNavigate } from "react-router-dom"
+// import { useNavigate } from "react-router-dom"
 
 Modal.setAppElement("#root");
 export default function NormalUser() {
@@ -120,8 +120,7 @@ export default function NormalUser() {
         if(comment !== '') {
             axios.post("/sent-comment", data).
                 then(res => {
-                    console.log(res.status);
-                    if(res.status === 202) {
+                    if(res.status === 201) {
                         setOpen(true);
                         setAlertTitle('success')
                         setAlertMsg('Successfully send the comment')

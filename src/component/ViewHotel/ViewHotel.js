@@ -25,7 +25,7 @@ export default function ViewHotel() {
     const [postInfo, setPostInfo] = useState([]);
     const [gallery, setGallery] = useState([]);
     const [currentImage, setCurrentImage] = useState(0);
-    const [isCommentOpen, setIsCommentOpen] = useState(false);
+    const [isViewImageOpen, setIsViewImageOpen] = useState(false);
     const [alertTitle, setAlertTitle] = useState('success');
     const [alertMsg, setAlertMsg] = useState('');
     const [open, setOpen] = useState(false);
@@ -87,14 +87,13 @@ export default function ViewHotel() {
                       index: 0  
                     },
         }).then(res => {
-            return res.data
+            return res.data;
         })
         .then(data =>{
             setBlobGalleryUrl(convertImage(data['image']))
             setGallery(data)
             setTotalItem(data['totalItem'])
-            setIsCommentOpen(!isCommentOpen)
-            console.log(currentImage, "-", totalItem);
+            setIsViewImageOpen(!isViewImageOpen)
             if(currentImage===totalItem-1) {
                 console.log("setBoolNext");
                 setBoolNext(false)
@@ -102,10 +101,17 @@ export default function ViewHotel() {
                 setBoolNext(true)
             }
         }).catch(error => {
-            setOpen(true);
-            setAlertTitle('error')
-            setAlertMsg('Something went wrong.')    
-            setIsCommentOpen(isCommentOpen)
+            if (error.response.status ===404) {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('No Images Upoladed')    
+                setIsViewImageOpen(isViewImageOpen)
+            }else {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('Something went wrong.')    
+                setIsViewImageOpen(isViewImageOpen)
+            }
         })
     }
 
@@ -142,9 +148,17 @@ export default function ViewHotel() {
 
             })       
         } catch (error) {
-            setOpen(true);
-            setAlertTitle('error')
-            setAlertMsg('Something went wrong')    
+            if (error.response.status ===404) {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('No Images Upoladed')    
+                setIsViewImageOpen(isViewImageOpen)
+            }else {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('Something went wrong.')    
+                setIsViewImageOpen(isViewImageOpen)
+            }
         }
     }, [currentImage])
 
@@ -206,7 +220,7 @@ export default function ViewHotel() {
                                     View Images
                                 </Button>
 
-                                <Modal isOpen={isCommentOpen} onRequestClose={toggleModal} contentLabel="Comments" id="gallery-modal" className="comment-modal" overlayClassName="comment-overlay">
+                                <Modal isOpen={isViewImageOpen} onRequestClose={toggleModal} contentLabel="Comments" id="gallery-modal" className="comment-modal" overlayClassName="comment-overlay">
                                     <h2 className='mb-4 font-effect-shadow-multiple' id='username'>Gallery</h2>
                                     <div className="gallery-container">
                                         <img src={blobGalleryUrl} alt="hotel" className='gallery-image'/>

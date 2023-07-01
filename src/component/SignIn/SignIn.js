@@ -44,7 +44,7 @@ export default function SignIn() {
                 
             }
         }).catch(error => {
-            if(error.response.data.status === 401) {
+            if(error.response.status === 401) {
                 setOpen(true);
                 setAlertTitle('error')
                 setAlertMsg('Invalid user credentials')

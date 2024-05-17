@@ -19,7 +19,7 @@
     "react-grid-gallery": "^1.0.0",
     "react-icons": "^4.7.1",
     "react-modal": "^3.16.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -48,6 +48,11 @@
   },
   "devDependencies": {
     "react-router-dom": "^6.8.1"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^axios$": "axios/dist/node/axios.cjs"
+    }
   },
   "proxy": "http://localhost:8080"
 }

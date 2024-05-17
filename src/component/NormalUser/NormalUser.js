@@ -305,11 +305,11 @@ export default function NormalUser() {
                         <div id="right">
                             <div id="content">
                                 <h2 id='rate-header' className='font-effect-shadow-multiple'>Rated Hotels and Restaurants</h2>
-                                <img src={require('../../asset/hotel.jpg')} className="mb-2" alt="hotel" style={{width:"45px", height:"45px", borderRadius:"100%"}} />
-                                <h5 id='rate-hotel' >Abdfdfc Galadkkk dfgdgdf Hotel</h5>
+                                <img src={require('../../asset/download.jpg')} className="mb-2" alt="hotel" style={{width:"45px", height:"45px", borderRadius:"100%"}} />
+                                <h5 id='rate-hotel' >Enchanted Hotel</h5>
                                 <span id='line-1' className='mb-3'></span>
                                 <img src={require('../../asset/hotel.jpg')} className="mb-2" alt="hotel" style={{width:"45px", height:"45px", borderRadius:"100%"}} />
-                                <h5 id='rate-hotel'>Abdfdfc dfgdgdf Hotel</h5>
+                                <h5 id='rate-hotel'>Coastal Getaway</h5>
                                 
                             </div>
                         </div>

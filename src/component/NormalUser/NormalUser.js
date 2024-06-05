@@ -1,24 +1,29 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { FaComment, FaThumbsUp, FaUser, FaSignOutAlt, FaTelegramPlane } from 'react-icons/fa';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Footer from '../Footer/Footer';
 import axios from 'axios';
 import moment from 'moment';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Modal from "react-modal";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import FadeLoader  from "react-spinners/FadeLoader";
+
 // import { useNavigate } from "react-router-dom"
 
-Modal.setAppElement("#root");
+// Modal.setAppElement("#root");
 export default function NormalUser() {
 
+    const port = window.location.origin;
+    const searchUrl = `${port}/search-user?`;
     const [userInfo, setUserInfo] = useState([]);
     const [blobUrl, setBlobUrl] = useState("");
     const location = useLocation();
     const [postInfo, setPostInfo] = useState([]);
     const [commentInfo, setCommentInfo] = useState([]);
+    const [searchInfo, setSearchInfo] = useState([]);
     const [isCommentOpen, setIsCommentOpen] = useState(false);
     const [comment, setComment] = useState("");
     const [selectComment, setSelectComment] = useState(-1);
@@ -26,23 +31,16 @@ export default function NormalUser() {
     const [alertTitle, setAlertTitle] = useState('success');
     const [alertMsg, setAlertMsg] = useState('');
     const [open, setOpen] = useState(false);
-    const [vertical, setVertical] = useState('top');
-    const [horizontal, setHorizontal] = useState('right');
+    const [vertical] = useState('top');
+    const [horizontal] = useState('right');
     // const postInfo=[]
     const data = location.state?.data || '';
     const navigate = useNavigate();
-
+    const [loading, setLoading] = useState(false);
+    const [debounceTimeout, setDebounceTimeout] = useState(null);
+    const [searchValue, setSearchValue] = useState('');
     
-    useEffect(() => {
-        const authToken = localStorage.getItem("token")
-        axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
-        let userId = data['userId']
-        getUserInfor(userId)
-        getAllPost(userId)
-
-    }, [])
-
-    const convertImage =(image) => {
+    const convertImage = useCallback((image) => {
         let postBaseUrl=''
         const byteCharacters = atob(image);
         const byteNumbers = new Array(byteCharacters.length);
@@ -53,7 +51,31 @@ export default function NormalUser() {
         const blob = new Blob([byteArray], {type: 'image/jpeg'});
         postBaseUrl = (URL.createObjectURL(blob));
         return postBaseUrl;
-    }
+    }, []);
+
+    const getUserInfor = useCallback((userId) => {
+        axios.get(`user-infor/${userId}`)
+            .then(response => {
+                setUserInfo(response.data);    
+                setBlobUrl(convertImage(response.data.image))
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, [setUserInfo, setBlobUrl, convertImage]);
+
+    
+    useEffect(() => {
+        setLoading(true);
+        const authToken = localStorage.getItem("token")
+        axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
+        if (data && data.userId) {
+            getUserInfor(data.userId);
+            getAllPost(data.userId);
+        }
+        setLoading(false)
+
+    }, [data, getUserInfor])
 
     const dateFormat =(data) => {
         return moment(data).format('YYYY-MM-DD HH:mm:ss')
@@ -68,89 +90,72 @@ export default function NormalUser() {
         })
     }
 
-    const getUserInfor =(userId) => {
-        axios.get(`user-infor/${userId}`)
-            .then(response => {
-                setUserInfo(response.data);    
-                setBlobUrl(convertImage(response.data.image))
-
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }
-
     const toggleModal=(postId) => {
+        setLoading(true);
         setIsCommentOpen(!isCommentOpen)
         setSelectComment(postId)
         if(!isCommentOpen) {
             axios.get(`get-comment/${postId}`)
-                .then(res => {
-                    return res.data
-                })
+                .then(res => res.data)
                 .then(data =>{
-                    setCommentInfo(data)
+                    setLoading(false);
+                    setCommentInfo(data) 
                 })
-                // .then(() => {
-                //     commentInfo.map(item => {
-                //         console.log(item.commentId);
-                //         console.log(item.userName);
-                //     })
-                // })
+        } else {
+            setLoading(false);
         }
-        
     }
 
     const handleInputChange = (e) => {
         const {id , value} = e.target;
         if(id === "comment"){
             setComment(value);
-        }
-        
+        }      
     }
-
     
     const sendComment=() => {
-        
+        setLoading(true);
         const data ={
             userId:  localStorage.getItem("id"),
             postId: selectComment,
             comment: comment
         }
         if(comment !== '') {
-            axios.post("/sent-comment", data).
-                then(res => {
+            axios.post("/sent-comment", data)
+                .then(res => {
                     if(res.status === 201) {
                         setOpen(true);
                         setAlertTitle('success')
                         setAlertMsg('Successfully send the comment')
+                        setComment("");
                     }else {
                         setOpen(true);
                         setAlertTitle('error')
                         setAlertMsg('Something went wrong')
                     }
-                }).
-                then(() => {
+                })
+                .then(() => {
                     axios.get(`get-comment/${selectComment}`)
                         .then(res => {
                             return res.data
                         })
                         .then(data =>{
                             setCommentInfo(data)
+                            setLoading(false);
                         })
-                }).
-                catch(error => {
+                })
+                .catch(error => {
                     setOpen(true);
                     setAlertTitle('error')
-                    setAlertMsg('Something went wrong')    
+                    setAlertMsg('Something went wrong') 
+                    setLoading(false);   
                 })
         }else {
             setOpen(true);
             setAlertTitle('warning')
             setAlertMsg('Please enter the comment')
+            setLoading(false);
         }
-      
-        
     }
 
     const handleClose = (event, reason) => {
@@ -161,15 +166,13 @@ export default function NormalUser() {
     };
 
     const addLike=(postId) => {
-        
+        setLoading(true);
         const data ={
             userId:  +localStorage.getItem("id"),
             postId: postId
         }
-        console.log("data", data);
         axios.post("add-like", data).then(async response => {
             if(response.status === 201) {
-
                 const response = await axios.get(`all-post/${localStorage.getItem("id")}`);
                 setPostInfo(response.data);
             }else {
@@ -177,10 +180,12 @@ export default function NormalUser() {
                 setAlertTitle('error')
                 setAlertMsg('Something went wrong')  
             }
+            setLoading(false);
         }).catch(error => {
             setOpen(true);
             setAlertTitle('error')
             setAlertMsg('Something went wrong')    
+            setLoading(false);
         })
         
     };
@@ -189,6 +194,28 @@ export default function NormalUser() {
         localStorage.removeItem("token")
         localStorage.removeItem("id")
         navigate('/')
+    };
+
+    const handleKeyUp = (event) => {
+        setLoading(true);
+        const value = event.target.value;
+        setSearchValue(value)
+        if (debounceTimeout) {
+            clearTimeout(debounceTimeout);
+        }
+        const newTimeout = setTimeout(() => {
+            const params = new URLSearchParams({name: value, page: 0});
+            console.log(params.toString());
+            axios.get(`${searchUrl}${params.toString()}`)
+                .then(res => res.data)
+                .then(res =>{
+                    setSearchInfo(res.data)
+                    setLoading(false);
+                }).catch(error => { 
+                    setLoading(false);
+                })
+        }, 2000);
+        setDebounceTimeout(newTimeout);
     };
 
     return(
@@ -201,7 +228,7 @@ export default function NormalUser() {
                         </div>
                             
                         <Form.Group>
-                            <Form.Control type="text" id="search-field" placeholder="Search" />
+                            <Form.Control type="text" id="search-field" placeholder="Search" onKeyUp={handleKeyUp} />
                         </Form.Group>
                         
                         <div id="nav-2">
@@ -303,15 +330,35 @@ export default function NormalUser() {
                         </div>
 
                         <div id="right">
-                            <div id="content">
+                        { searchValue==='' ? (
+                            <div id="content">      
                                 <h2 id='rate-header' className='font-effect-shadow-multiple'>Rated Hotels and Restaurants</h2>
                                 <img src={require('../../asset/download.jpg')} className="mb-2" alt="hotel" style={{width:"45px", height:"45px", borderRadius:"100%"}} />
                                 <h5 id='rate-hotel' >Enchanted Hotel</h5>
                                 <span id='line-1' className='mb-3'></span>
                                 <img src={require('../../asset/hotel.jpg')} className="mb-2" alt="hotel" style={{width:"45px", height:"45px", borderRadius:"100%"}} />
                                 <h5 id='rate-hotel'>Coastal Getaway</h5>
-                                
                             </div>
+                        ) : (
+                            <div id="content">
+                                <h2 id='rate-header' className='font-effect-shadow-multiple'>Searched Hotels and Restaurants</h2>
+                                {searchInfo.map(item => (
+                                    <div>
+                                        <img src={convertImage(item.image)} className="mb-2" alt="hotel" style={{width:"45px", height:"45px", borderRadius:"100%"}} />
+                                        <h5 id='rate-hotel'>{item.name}</h5>
+                                        <span id='line-1' className='mb-3'></span>
+                                    </div>
+                                ))}
+                                <div>
+                                    {searchInfo.length === 0 ? (
+                                    <div>
+                                        <h5 id="no-content">No search results</h5><hr />
+                                    </div>
+                                    ) : null}
+                                </div> 
+                            </div>
+                            )
+                        }
                         </div>
                     </div>
                 </div>
@@ -322,6 +369,19 @@ export default function NormalUser() {
                         </Alert>
                     </Snackbar>
                 </div>
+                <div className={loading ? 'spinner-overlay' : ''}>
+                    <div className='spinner'>
+                        <FadeLoader
+                        color="#000000"
+                        height={15}
+                        loading={loading}
+                        radius={2}
+                        speedMultiplier={2}
+                        width={5}
+                        />
+                    </div>
+                </div>
+                    
                 <Footer></Footer>
             </div>
         )

@@ -19,8 +19,8 @@ export default function SignIn() {
     const [alertMsg, setAlertMsg] = useState('');
 
 
-    const [vertical, setVertical] = useState('top');
-    const [horizontal, setHorizontal] = useState('right');
+    const [vertical] = useState('top');
+    const [horizontal] = useState('right');
     const navigate = useNavigate()
 
     function logInClick() {

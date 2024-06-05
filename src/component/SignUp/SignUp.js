@@ -6,7 +6,7 @@ import Footer from '../Footer/Footer';
 import axios from 'axios';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 export default function SignUp() {
 
     const [userName, setUserName] = useState('');
@@ -17,14 +17,13 @@ export default function SignUp() {
     const [country, setCountry] = useState('');
     const [image, setImage] = useState([]);
     const [checkBusiness, setCheckBusiness] = useState(false);
-    const [businessType, setBusinessType] = useState(1);
-    const location = useLocation();
+    const [setBusinessType] = useState(1);
 
     const [alertTitle, setAlertTitle] = useState('success');
     const [alertMsg, setAlertMsg] = useState('');
     const [open, setOpen] = useState(false);
-    const [vertical, setVertical] = useState('top');
-    const [horizontal, setHorizontal] = useState('right');
+    const [vertical] = useState('top');
+    const [horizontal] = useState('right');
     const navigate = useNavigate();
 
     const handleInputChange = (e) => {

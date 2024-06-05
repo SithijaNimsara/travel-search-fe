@@ -1,5 +1,5 @@
-import React, {  useEffect, useState } from 'react';
-import { FaUser, FaSignOutAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import React, {  useEffect, useState, useCallback, useRef } from 'react';
+import { FaUser, FaSignOutAlt, FaChevronLeft, FaChevronRight, FaTimes, FaThumbsUp, FaComment, FaTelegramPlane } from 'react-icons/fa';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Footer from '../Footer/Footer';
@@ -19,6 +19,7 @@ export default function ViewHotel() {
     const allPostUrl = `${port}/all-post/${id}`;
     const userInforUrl = `${port}/user-infor/${id}`;
     const galleryUrl = `${port}/get-gallery-image`;
+    const likeUrl = `${port}/add-like`;
     const [hotelInfo, setHotelInfo] = useState([]);
     const [blobUrl, setBlobUrl] = useState("");   
     const [blobGalleryUrl, setBlobGalleryUrl] = useState("");   
@@ -29,42 +30,17 @@ export default function ViewHotel() {
     const [alertTitle, setAlertTitle] = useState('success');
     const [alertMsg, setAlertMsg] = useState('');
     const [open, setOpen] = useState(false);
-    const [vertical, setVertical] = useState('top');
-    const [horizontal, setHorizontal] = useState('right');
+    const [vertical] = useState('top');
+    const [horizontal] = useState('right');
     const [totalItem, setTotalItem] = useState(0);
-    const [boolNext, setBoolNext] = useState(true);
+    const isFirstRender = useRef(false);
     const navigate = useNavigate();
+    const [isCommentOpen, setIsCommentOpen] = useState(false);
+    const [selectComment, setSelectComment] = useState(-1);
+    const [commentInfo, setCommentInfo] = useState([]);
+    const [comment, setComment] = useState("");
 
-    useEffect(() => {
-        const authToken = localStorage.getItem("token")
-        axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
-
-        getHotelInfor();
-        getAllPost();
-
-    }, [])
-
-    const getHotelInfor =() => {
-        axios.get(userInforUrl)
-            .then(response => {
-                setHotelInfo(response.data);    
-                setBlobUrl(convertImage(response.data.image))
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }
-
-    const getAllPost =()  => {
-        axios.get(allPostUrl).then(res => {
-            return res.data
-        })
-        .then(data =>{
-            setPostInfo(data)
-        })
-    }
-
-    const convertImage =(image) => {
+    const convertImage = useCallback((image) => {
         let postBaseUrl=''
         const byteCharacters = atob(image);
         const byteNumbers = new Array(byteCharacters.length);
@@ -75,16 +51,45 @@ export default function ViewHotel() {
         const blob = new Blob([byteArray], {type: 'image/jpeg'});
         postBaseUrl = (URL.createObjectURL(blob));
         return postBaseUrl;
-    }
+    }, []);
+
+    const getHotelInfor  = useCallback(() => {
+        axios.get(userInforUrl)
+            .then(response => {
+                setHotelInfo(response.data);    
+                setBlobUrl(convertImage(response.data.image))
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, [userInforUrl, setHotelInfo, setBlobUrl, convertImage]);
+
+    const getAllPost = useCallback(() => {
+        axios.get(allPostUrl).then(res => {
+            return res.data
+        })
+        .then(data =>{
+            setPostInfo(data)
+        })
+    }, [allPostUrl, setPostInfo]);
+
+    useEffect(() => {
+        const authToken = localStorage.getItem("token")
+        axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
+
+        getHotelInfor();
+        getAllPost();
+
+    }, [getHotelInfor, getAllPost, convertImage])
 
     const dateFormat =(data) => {
         return moment(data).format('YYYY-MM-DD HH:mm:ss')
     }
 
-    const toggleModal=() => {
+    const toggleModal= useCallback((pageNum, clickGallery = false) => {
         axios.get(galleryUrl, {
             params: { hotelId: id,
-                      index: 0  
+                      index: pageNum  
                     },
         }).then(res => {
             return res.data;
@@ -93,12 +98,9 @@ export default function ViewHotel() {
             setBlobGalleryUrl(convertImage(data['image']))
             setGallery(data)
             setTotalItem(data['totalItem'])
-            setIsViewImageOpen(!isViewImageOpen)
-            if(currentImage===totalItem-1) {
-                console.log("setBoolNext");
-                setBoolNext(false)
-            }else {
-                setBoolNext(true)
+            if (clickGallery) {
+                setIsViewImageOpen(!isViewImageOpen)
+                // setCurrentImage(0)
             }
         }).catch(error => {
             if (error.response.status ===404) {
@@ -113,54 +115,27 @@ export default function ViewHotel() {
                 setIsViewImageOpen(isViewImageOpen)
             }
         })
-    }
+    }, []);
 
     const nextImage = () => {
-        if(boolNext) {
-            setCurrentImage(currentImage => currentImage + 1);   
-        } 
+        isFirstRender.current = true;
+        setCurrentImage(currentImage => currentImage + 1); 
     };
 
     const prevImage = () => {
-        if(currentImage!==0) {
-            setCurrentImage(currentImage => currentImage - 1);
-        }      
+        isFirstRender.current = true;
+        setCurrentImage(currentImage => currentImage - 1);    
+    };
+
+    const closeModal = () => {
+        setIsViewImageOpen(false);
     };
 
     useEffect(() => {
-        try {
-            const response = axios.get(galleryUrl, {
-                params: { hotelId: id,
-                            index: currentImage  
-                        },
-            })
-            .then(data => {
-                setGallery(data.data)
-                setTotalItem(data.data['totalItem'])
-                setBlobGalleryUrl(convertImage(data.data['image']))
-                console.log(currentImage, "-", totalItem);
-                if(currentImage===totalItem-1) {
-                    console.log("setBoolNext");
-                    setBoolNext(false)
-                }else {
-                    setBoolNext(true)
-                }
-
-            })       
-        } catch (error) {
-            if (error.response.status ===404) {
-                setOpen(true);
-                setAlertTitle('error')
-                setAlertMsg('No Images Upoladed')    
-                setIsViewImageOpen(isViewImageOpen)
-            }else {
-                setOpen(true);
-                setAlertTitle('error')
-                setAlertMsg('Something went wrong.')    
-                setIsViewImageOpen(isViewImageOpen)
-            }
+        if (isFirstRender.current && currentImage >= 0) {
+            toggleModal(currentImage);
         }
-    }, [currentImage])
+    }, [currentImage]);
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -175,6 +150,88 @@ export default function ViewHotel() {
         navigate('/')
     };
 
+    const addLike=(postId) => {
+        const data ={
+            userId: +localStorage.getItem("id"),
+            postId: postId
+        }
+        axios.post(likeUrl, data).then(async response => {
+            if(response.status === 201) {
+                const response = await axios.get(allPostUrl);
+                setPostInfo(response.data);
+            }else {
+                setOpen(true);
+                setAlertTitle('error')
+                setAlertMsg('Something went wrong')  
+            }
+        }).catch(error => {
+            setOpen(true);
+            setAlertTitle('error')
+            setAlertMsg('Something went wrong')    
+        })
+    };
+
+    const commentModal=(postId) => {
+        setIsCommentOpen(!isCommentOpen)
+        setSelectComment(postId)
+        if(!isCommentOpen) {
+            axios.get(`${port}/get-comment/${postId}`)
+                .then(res => {
+                    return res.data
+                })
+                .then(data =>{
+                    setCommentInfo(data)
+                })
+        }
+    }
+
+    const handleInputChange = (e) => {
+        const {id , value} = e.target;
+        if(id === "comment"){
+            setComment(value);
+        }
+    }
+
+    const sendComment=() => {
+        const data ={
+            userId:  localStorage.getItem("id"),
+            postId: selectComment,
+            comment: comment
+        }
+        if(comment !== '') {
+            axios.post("/sent-comment", data)
+                .then(res => {
+                    if(res.status === 201) {
+                        setOpen(true);
+                        setAlertTitle('success')
+                        setAlertMsg('Successfully send the comment')
+                        setComment("");
+                    }else {
+                        setOpen(true);
+                        setAlertTitle('error')
+                        setAlertMsg('Something went wrong')
+                    }
+                })
+                .then(() => {
+                    axios.get(`${port}/get-comment/${selectComment}`)
+                        .then(res => {
+                            return res.data
+                        })
+                        .then(data =>{
+                            setCommentInfo(data)
+                        })
+                })
+                .catch(error => {
+                    setOpen(true);
+                    setAlertTitle('error')
+                    setAlertMsg('Something went wrong')    
+                })
+        }else {
+            setOpen(true);
+            setAlertTitle('warning')
+            setAlertMsg('Please enter the comment')
+        }  
+    }
 
     return (
         <div id="container-1">
@@ -216,20 +273,30 @@ export default function ViewHotel() {
                                 <h4 className='mb-3'>{hotelInfo.state}</h4>
                                 <h4 className='mb-3'>{hotelInfo.country}</h4>
 
-                                <Button onClick={() => toggleModal()}>
+                                <Button onClick={() => toggleModal(currentImage, true)}>
                                     View Images
                                 </Button>
 
-                                <Modal isOpen={isViewImageOpen} onRequestClose={toggleModal} contentLabel="Comments" id="gallery-modal" className="comment-modal" overlayClassName="comment-overlay">
-                                    <h2 className='mb-4 font-effect-shadow-multiple' id='username'>Gallery</h2>
+                                <Modal isOpen={isViewImageOpen} contentLabel="Comments" id="gallery-modal" className="comment-modal" overlayClassName="comment-overlay">
+                                    <div className="gallery-header">
+                                        <h2 className='mb-4 font-effect-shadow-multiple' id='username'>Gallery</h2>
+                                        <button className="gallery-clsoe" onClick={closeModal}>
+                                            <FaTimes />
+                                        </button>
+                                    </div>
+                                    
                                     <div className="gallery-container">
                                         <img src={blobGalleryUrl} alt="hotel" className='gallery-image'/>
                                     </div>
                                     
                                     <div className="gallery-btn-container">
-                                        <button className='gallery-btn' onClick={prevImage} ><FaChevronLeft /></button>
-                                        <p>{gallery["currentPage"]+1} / {gallery["totalItem"]}</p>
-                                        <button className='gallery-btn' onClick={nextImage} ><FaChevronRight /></button>
+                                        { currentImage > 0 && (
+                                            <button className='gallery-btn' onClick={prevImage} ><FaChevronLeft /></button>
+                                        )}
+                                        <p>{currentImage+1} / {totalItem}</p>
+                                        { currentImage+1 < totalItem && (
+                                            <button className='gallery-btn' onClick={nextImage} ><FaChevronRight /></button>
+                                        )}
                                     </div>
 
 
@@ -247,8 +314,57 @@ export default function ViewHotel() {
                                     <p id='post-time'>{dateFormat(item.postDetailsDto['time'])}</p>
                                    
                                     <h6>{item.postDetailsDto['caption']}</h6>
-                                    <img src={convertImage(item.postDetailsDto['postImage'])} alt="post" style={{width:"100%", height:"60%"}} />
-                                   
+                                    <img src={convertImage(item.postDetailsDto.postImage)} alt="post" style={{width:"100%", height:"60%"}} />
+                                    {item.likeDetailsDto['liked'] ? (
+                                            <Button id="dislike-btn" disabled>
+                                                <FaThumbsUp />
+                                                <div id="like-count">
+                                                    {item.likeDetailsDto.likeCount } like 
+                                                </div>
+                                            </Button>
+                                        ) : (
+                                            <Button id="like-btn" onClick={() => addLike(item.postDetailsDto.postId)}>
+                                                <FaThumbsUp />
+                                                <div id="like-count">
+                                                    {item.likeDetailsDto.likeCount } like 
+                                                </div>
+                                            </Button>
+                                        )
+                                    }
+
+                                    <Button id="comment-btn" onClick={() => commentModal(item.postDetailsDto.postId)}>
+                                        <FaComment />
+                                    </Button>
+
+                                    <Modal isOpen={isCommentOpen} onRequestClose={commentModal} contentLabel="Comments" className="comment-modal" overlayClassName="comment-overlay">
+                                        <h2 className='mb-4 font-effect-shadow-multiple' id='username'>
+                                            Comments
+                                        </h2>
+                                        <div className='comment-list'>
+                                            {commentInfo.map(element => (
+                                                <div>
+                                                    <hr></hr>
+                                                    {/* <img src={require('../../asset/person.jpg')} alt="person" style={{width:"55px", height:"55px", borderRadius:"100%"}} /> */}
+                                                    <img src={convertImage(element.userImage)} alt="person" style={{width:"55px", height:"55px", borderRadius:"100%"}} />
+                                                    <h3 className='font-effect-shadow-multiple' id='comment-header'>
+                                                        {element.userName}
+                                                    </h3>
+                                                    <h4 id='post-comment'>{element.comment}</h4>
+                                                    <p id='comment-time'>{dateFormat(element.time)}</p>
+                                                </div>
+                                            ))}
+                                            <hr></hr>
+                                            <div hidden={commentInfo.length!==0}>
+                                                <h5 id="no-content">No comment</h5>
+                                                <hr></hr>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className='comment-filed'>
+                                            <input type="text" className='comment-input' placeholder="Enter your comment" id="comment" value={comment} onChange={(e) => handleInputChange(e)}/>
+                                            <Button id='comment-send' onClick={sendComment}><FaTelegramPlane/></Button>
+                                        </div>
+                                    </Modal>
                                 </div>
                             ))}                            
                         </div>

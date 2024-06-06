@@ -23,7 +23,7 @@ export default function HotelUser() {
     const [postImage, setPostImage] = useState('');
     const [postInfo, setPostInfo] = useState([]);
     const [isCommentOpen, setIsCommentOpen] = useState(false);
-    const [selectComment, setSelectComment] = useState(-1);
+    const [setSelectComment] = useState(-1);
     const [commentInfo, setCommentInfo] = useState([]);
     const [alertTitle, setAlertTitle] = useState('success');
     const [alertMsg, setAlertMsg] = useState('');
@@ -260,7 +260,7 @@ export default function HotelUser() {
             }
             setLoading(false);
         })
-    }, []);
+    }, [convertImage, isViewImageOpen]);
 
     const nextImage = () => {
         isFirstRender.current = true;
@@ -276,7 +276,7 @@ export default function HotelUser() {
         if (isFirstRender.current && currentImage >= 0) {
             viewImageModal(currentImage);
         }
-    }, [currentImage]);
+    }, [currentImage, viewImageModal]);
 
     const closeModal = () => {
         setIsViewImageOpen(false);

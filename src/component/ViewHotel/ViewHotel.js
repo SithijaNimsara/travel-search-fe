@@ -24,7 +24,7 @@ export default function ViewHotel() {
     const [blobUrl, setBlobUrl] = useState("");   
     const [blobGalleryUrl, setBlobGalleryUrl] = useState("");   
     const [postInfo, setPostInfo] = useState([]);
-    const [gallery, setGallery] = useState([]);
+    // const [setGallery] = useState([]);
     const [currentImage, setCurrentImage] = useState(0);
     const [isViewImageOpen, setIsViewImageOpen] = useState(false);
     const [alertTitle, setAlertTitle] = useState('success');
@@ -96,7 +96,7 @@ export default function ViewHotel() {
         })
         .then(data =>{
             setBlobGalleryUrl(convertImage(data['image']))
-            setGallery(data)
+            // setGallery(data)
             setTotalItem(data['totalItem'])
             if (clickGallery) {
                 setIsViewImageOpen(!isViewImageOpen)
@@ -115,7 +115,7 @@ export default function ViewHotel() {
                 setIsViewImageOpen(isViewImageOpen)
             }
         })
-    }, []);
+    }, [convertImage, galleryUrl, id, isViewImageOpen]);
 
     const nextImage = () => {
         isFirstRender.current = true;
@@ -135,7 +135,7 @@ export default function ViewHotel() {
         if (isFirstRender.current && currentImage >= 0) {
             toggleModal(currentImage);
         }
-    }, [currentImage]);
+    }, [currentImage, toggleModal]);
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {

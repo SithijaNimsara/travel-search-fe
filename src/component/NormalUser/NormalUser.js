@@ -5,7 +5,7 @@ import Form from 'react-bootstrap/Form';
 import Footer from '../Footer/Footer';
 import axios from 'axios';
 import moment from 'moment';
-import { useLocation, Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import Modal from "react-modal";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';

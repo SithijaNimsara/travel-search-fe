@@ -12,7 +12,6 @@ import Alert from '@mui/material/Alert';
 // import { useNavigate } from "react-router-dom";
 import FadeLoader  from "react-spinners/FadeLoader";
 
-Modal.setAppElement("#root");
 
 export default function HotelUser() {
 
@@ -77,7 +76,6 @@ export default function HotelUser() {
     }, [setPostInfo]);
 
     useEffect(() => {
-        Modal.setAppElement("#root");
         const authToken = localStorage.getItem("token")
         axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
         if (data && data.userId) {

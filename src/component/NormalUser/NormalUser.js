@@ -13,7 +13,6 @@ import FadeLoader  from "react-spinners/FadeLoader";
 
 // import { useNavigate } from "react-router-dom"
 
-Modal.setAppElement("#root");
 export default function NormalUser() {
 
     const port = window.location.origin;
@@ -66,7 +65,6 @@ export default function NormalUser() {
 
     
     useEffect(() => {
-        Modal.setAppElement("#root");
         setLoading(true);
         const authToken = localStorage.getItem("token")
         axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;

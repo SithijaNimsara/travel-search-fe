@@ -77,6 +77,7 @@ export default function HotelUser() {
     }, [setPostInfo]);
 
     useEffect(() => {
+        Modal.setAppElement("#root");
         const authToken = localStorage.getItem("token")
         axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
         if (data && data.userId) {
